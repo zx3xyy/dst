@@ -71,6 +71,25 @@ newer player progress without a specific restoration request and retained backup
 
 ## Persistence and updates
 
+### Scheduled Drive backups
+
+For Google Drive backup work, read `~/dst/docs/drive-backups.md`. Code and user
+systemd units live in the repository. The intended schedule is 04:00 daily in
+America/Los_Angeles, with destination `dst-drive:DST-Backups`. Check the live timer
+and `runtime/logs/drive-backup-last-success.txt` before claiming uploads are active.
+One-time Google authorization and an upload/check must succeed via
+`scripts/setup-drive-backup.sh` before that script enables the timer.
+
+`scripts/drive-backup.sh` uses `scripts/snapshot.py` without stopping the server:
+it verifies stable file hashes and archives the latest on-disk cluster, excluding
+logs and the Klei token. It does not force a save or promise a transactional
+checkpoint of both shards. Local archives stay in `backups/daily/`; failed uploads
+are retried later and no retention deletion is enabled. OAuth credentials and
+the verified rclone binary stay Git-ignored under `runtime/`. These credentials
+are separate from the chat's Google Drive connector.
+
+### Runtime files
+
 Bind mounts keep the following outside the container:
 
 | Project path | Container path / purpose |

@@ -87,7 +87,17 @@ runtime/ and are reused. The old 2022 community image is no longer used.
 The desktop AC idle action was verified as `nothing` (no automatic suspend).
 Wired Ethernet is preferable for 24/7 use.
 
-## Router
+## Daily Google Drive backup
+
+The backup scripts and a daily 04:00 America/Los_Angeles timer are prepared.
+Run `bash scripts/setup-drive-backup.sh` once to authorize Google Drive. The
+script verifies the first upload before enabling the timer. Local snapshot
+creation and archive integrity checks have passed; cloud authorization and
+upload verification are still pending. See [the backup guide](docs/drive-backups.md).
+This scheduled method keeps the server running and captures already-saved
+progress. It is separate from the older `scripts/backup.sh` stop/start backup.
+
+## Router access
 
 Current Wi-Fi: YOUR_WIFI_NAME. Gateway: 192.0.2.1. Server Wi-Fi address: 192.0.2.10.
 Reserve this address in DHCP (or reserve the Ethernet address if switching).

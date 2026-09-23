@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily DST cloud backup at 04:00 Los Angeles time
+
+[Timer]
+OnCalendar=*-*-* 04:00:00 America/Los_Angeles
+Persistent=true
+AccuracySec=1min
+Unit=dst-drive-backup.service
+
+[Install]
+WantedBy=timers.target
