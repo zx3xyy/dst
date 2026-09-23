@@ -6,6 +6,8 @@ cluster=/data/DoNotStarveTogether/Cluster_1
     exit 1
 }
 mkdir -p /opt/steamcmd /opt/dst_server
+# SteamCMD rejects some cache files copied with a different owner's UID.
+chown -R root:root /opt/steamcmd /opt/dst_server /root/Steam
 if [[ ! -x /opt/steamcmd/steamcmd.sh ]]; then
     curl -fSL --retry 3 https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz \
         -o /tmp/steamcmd.tar.gz
@@ -20,8 +22,9 @@ fi
 echo 'Checking DST updates with SteamCMD (existing downloads are reused)...'
 updated=false
 for attempt in 1 2 3; do
-    if /opt/steamcmd/steamcmd.sh +force_install_dir /opt/dst_server \
-        +login anonymous +app_update 343050 +quit; then
+    if /opt/steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType linux \
+        +force_install_dir /opt/dst_server +login anonymous \
+        +app_info_update 1 +app_update 343050 +quit; then
         updated=true
         break
     fi

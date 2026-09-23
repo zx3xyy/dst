@@ -37,6 +37,9 @@ Set pause_when_empty = true in cluster.ini's GAMEPLAY section.
 Store the Klei token in Cluster_1/cluster_token.txt, not in compose or chat.
 The game runs as UID/GID 1000, matching the host account. Keep backups private
 because they contain the token. Build and diagnostic logs go in runtime/logs/.
+SteamCMD's runtime files are owned by container root: it rejects certain cache
+files owned by a different UID. Leave that ownership intact; use sudo if these
+runtime files need manual maintenance. World saves remain owned by UID 1000.
 
 ## Run (from this directory)
 
