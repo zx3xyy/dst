@@ -1,0 +1,22 @@
+name: dst
+services:
+  server:
+    image: jamesits/dst-server:latest
+    restart: unless-stopped
+    environment:
+      DST_SERVER_ARCH: amd64
+    ports:
+      - "10999:10999/udp"
+      - "11000:11000/udp"
+      - "12346:12346/udp"
+      - "12347:12347/udp"
+    volumes:
+      - ./data:/data
+      - ./supervisor.conf:/etc/supervisor/supervisor.conf:ro
+    stop_signal: SIGINT
+    stop_grace_period: 13m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
