@@ -1,112 +1,114 @@
-# DST home server
+# Don't Starve Together home server
 
-Imported `incoming/Cluster_9.zip`: surface + caves, 7 workshop mods, original
-world settings and password preserved, pause when empty enabled. All 100 save
-data files matched the original ZIP after import. Docker access and Klei token
-are present. DST version 747465 is installed; Klei authentication, surface
-startup, cave startup, and the connection between shards have been verified.
-The world pauses when empty. Player login and outside-in access need testing.
-The original ZIP is retained. No replacement world has been generated.
+A persistent surface + caves server, built locally on Ubuntu 24.04. Game updates
+come from SteamCMD at startup. Saves, mods, credentials, downloads and backups
+stay under this checkout and outside Git.
 
-Moving Box (1079538195) uses a legacy Workshop archive. Steam's normal updater
-timed out for it. Its official Steam GetPublishedFileDetails download was
-extracted into data/DoNotStarveTogether/Cluster_1/mods/workshop-1079538195,
-preserving the original mod configuration. The metadata and ZIP are retained
-under runtime/. Its ServerModSetup line is excluded to avoid repeated stalls;
-the other six mods are updated normally. Keep this local mod folder with saves.
-If re-importing from ZIP, preserve/reinstall this legacy mod before startup.
+## Deploy or restore
 
-## Persistent files
+Prerequisites: Linux x86_64, Python 3.11+, [Docker Engine with Compose](https://docs.docker.com/engine/install/ubuntu/), and Docker access for the current user.
+The game UID/GID is 1000, matching this host's account. Keep this checkout at
+`~/dst` if using the supplied backup timer and personal skill.
 
-`data/` stores world saves, cluster settings, token, and mods.
-`runtime/game/` stores the downloaded dedicated server, including partial
-Steam downloads. `runtime/steamcmd/` stores SteamCMD and its cache;
-`runtime/steam-home/` stores Steam's root-user metadata and logs.
-All are bind mounts outside the container and excluded from Git.
-They survive a container restart, host reboot, or Compose container recreation.
-Do not delete these directories when updating. Startup checks for updates,
-but reuses installed files and resumable downloads instead of starting over.
-
-## Import
-
-Put the original archive in `incoming/`. Preserve an untouched copy there.
-The image expects the complete cluster at
-`data/DoNotStarveTogether/Cluster_1/`, including `cluster.ini`, `Master/`,
-and (if used) `Caves/`. The compose file currently assumes surface + caves;
-adapt the supervisor and preflight if the supplied world has no caves.
-Inspect and adapt any cloud-save layout before starting.
-
-Preserve world data, player data, world settings, and mod overrides.
-Configure Master/Caves game ports as 10999/11000 and Steam master server
-ports as 12346/12347 in their server.ini files. Shard communication should
-use a shared internal port and key, with the master on loopback.
-Configure separate Steam authentication ports if explicitly specified.
-Add workshop IDs from modoverrides.lua to mods/dedicated_server_mods_setup.lua.
-Set pause_when_empty = true in cluster.ini's GAMEPLAY section.
-
-Store the Klei token in Cluster_1/cluster_token.txt, not in compose or chat.
-The game runs as UID/GID 1000, matching the host account. Keep backups private
-because they contain the token. Build and diagnostic logs go in runtime/logs/.
-SteamCMD's runtime files are owned by container root: it rejects certain cache
-files owned by a different UID. Leave that ownership intact; use sudo if these
-runtime files need manual maintenance. World saves remain owned by UID 1000.
-
-## Run (from this directory)
-
-The account is now in the docker group. New login sessions can use Docker
-directly; existing sessions can use `sg docker -c 'docker compose ps'`.
-Alternatively use sudo:
-
-```sh
-sudo docker compose build --pull
-sudo bash scripts/start.sh
-sudo docker compose logs --tail=100 -f
-sudo docker compose ps
-sudo bash scripts/backup.sh
-sudo docker compose stop
+```bash
+git clone git@github.com:zx3xyy/dst.git ~/dst
+cd ~/dst
+mkdir -p incoming
+chmod 700 incoming
+# Copy your world ZIP or backup tar.gz and a private cluster_token.txt into incoming/.
+./setup.sh --archive incoming/Cluster_9.zip \
+  --token-file incoming/cluster_token.txt --start --install-skill
 ```
 
-Only start after import and mod review. The startup script refuses to start
-without both saved worlds, token, and the expected port configuration.
-Use `scripts/start.sh` rather than directly running `compose up`.
+To restore one of this project's backups, pass its `.tar.gz` instead of the ZIP.
+Backups omit the Klei token; retain the token separately or generate a new one.
+Both surface and caves are required. Setup refuses to overwrite an existing
+cluster or silently generate a replacement world. To replace a deployment,
+first save/stop it and retain the old cluster in `backups/` before importing.
 
-Docker is already enabled at boot. `unless-stopped` restores a running
-container after reboot and restarts it after failure; an explicitly stopped
-container stays stopped. Supervisor restarts failed shard processes. A Docker
-unhealthy status alone does not restart the container. Verify actual login,
-surface/cave travel and an external player's connection after launch.
+For the existing deployment:
 
-Updates download at container startup. For planned updates, make a backup,
-then restart with `sudo docker compose restart`. No automatic update or backup
-schedule is installed yet; choose a maintenance window after migration.
-Game updates come directly from Valve SteamCMD (app 343050). They do not
-require a new container image. The Dockerfile builds on Ubuntu 24.04;
-to refresh its operating-system packages, run `docker compose build --pull
---no-cache` followed by `docker compose up -d`. Existing game files remain in
-runtime/ and are reused. The old 2022 community image is no longer used.
-The desktop AC idle action was verified as `nothing` (no automatic suspend).
-Wired Ethernet is preferable for 24/7 use.
+```bash
+./setup.sh                     # Validate existing files; no restart
+./setup.sh --build             # Rebuild image; no restart
+./setup.sh --start             # Build and start/recreate; may interrupt players
+python3 scripts/serverctl.py status
+```
 
-## Daily Google Drive backup
+Add `--admins-file incoming/adminlist.txt` for a fresh setup. Put verified `KU_…`
+Klei IDs one per line; see `config/admins.example.txt`. Restored admin lists are
+preserved. Real account lists, room passwords and tokens are not checked in.
 
-The backup scripts and a daily 04:00 America/Los_Angeles timer are prepared.
-Run `bash scripts/setup-drive-backup.sh` once to authorize Google Drive. The
-script verifies the first upload before enabling the timer. Local snapshot
-creation and archive integrity checks have passed; cloud authorization and
-upload verification are still pending. See [the backup guide](docs/drive-backups.md).
-This scheduled method keeps the server running and captures already-saved
-progress. It is separate from the older `scripts/backup.sh` stop/start backup.
+Initial installation can take time. Check `bash scripts/docker.sh compose logs
+--tail=60`; a running container is not necessarily a ready world. Confirm both
+shards load and connect before inviting players. See [operations](docs/operations.md).
 
-## Router access
+## Operations
 
-Current Wi-Fi: YOUR_WIFI_NAME. Gateway: 192.0.2.1. Server Wi-Fi address: 192.0.2.10.
-Reserve this address in DHCP (or reserve the Ethernet address if switching).
-Forward these UDP ports to the same ports at the reserved server address:
-10999, 11000, 12346, 12347. Do not expose the internal shard port.
-The user reports port forwarding is configured. Outside-in connectivity and
-in-game cave travel still need a player test from a different network.
+```bash
+python3 scripts/serverctl.py status
+python3 scripts/serverctl.py save
+python3 scripts/serverctl.py rollback 2
+python3 scripts/serverctl.py admins KU_FIRST_PLAYER KU_SECOND_PLAYER
+```
 
-The repository tracks Dockerfile, docker/, compose.yaml, supervisor.conf,
-scripts/, and this guide. data/, incoming/, backups/, runtime/, and .env
-are Git-ignored. Docker itself still manages image layers, container metadata,
-and its bounded console-log storage in Docker's standard system data directory.
+Rollback takes a local backup first and sends **one** request to the surface;
+the game synchronizes caves. Verify the logs instead of resending on disconnect.
+Admins should reconnect after the permission list reload. They get full game
+admin permissions, not only rollback access.
+
+[Operations guide](docs/operations.md): joining, admin commands, saves, stopping,
+reboot behavior, rollback verification, troubleshooting, and update procedures.
+[Deployment notes](docs/deployment-notes.md): decisions and fixes from this setup.
+
+## Daily Google Drive backups
+
+```bash
+./setup.sh --drive
+```
+
+This installs a checksum-verified rclone under `runtime/tools/`, asks for Google
+authorization, uploads a test backup and verifies it, then enables the timer.
+The schedule is **04:00 America/Los_Angeles**, destination **DST-Backups**.
+Do not run with sudo. Authorization and a successful cloud test are required;
+see [backup setup and restore](docs/drive-backups.md).
+
+The daily job leaves the server running and captures stable, already-saved data,
+not unsaved in-memory progress. No automatic version deletion is configured.
+
+## Files and persistence
+
+| Path | Purpose | In Git? |
+|---|---|---|
+| `setup.sh`, `scripts/`, `docker/`, `Dockerfile`, `compose.yaml` | Deployment and operations | Yes |
+| `docs/`, `systemd/`, `skills/`, `tests/`, `config/` | Guides, timer, skill, checks, examples | Yes |
+| `data/DoNotStarveTogether/Cluster_1/` | World, players, settings, local mods, token and admins | No |
+| `runtime/game/`, `runtime/steamcmd/`, `runtime/steam-home/` | Game downloads and updater caches | No |
+| `runtime/rclone/`, `runtime/tools/`, `runtime/logs/` | OAuth, tools and diagnostic logs | No |
+| `incoming/`, `backups/` | Original uploads and backup archives | No |
+
+Bind mounts survive container replacement and host reboot. Docker still keeps
+its own images, container metadata and bounded console logs in its normal engine
+storage. Do not delete `runtime/` to troubleshoot an update: partial downloads
+are reusable. Save files use UID 1000; updater caches are root-owned because
+Steam rejects certain files copied with the wrong ownership.
+
+## Networking and boot
+
+Reserve the server's LAN IP on the router. Forward UDP **10999**, **11000**,
+**12346**, **12347** to the same ports on that IP. The internal shard port 10888
+stays internal. Test from a different network and enter the caves as well.
+On this host Docker is enabled at boot, automatic idle suspend is disabled, and
+`unless-stopped` restarts an active container after a reboot. Verify those host
+settings on a new machine; setup does not change them automatically.
+
+## Validate changes
+
+```bash
+python3 -m unittest discover -s tests -v
+bash -n setup.sh scripts/*.sh docker/*.sh
+docker compose config --quiet
+```
+
+The personal `$dst-server` skill is sourced from `skills/dst-server/`. Install its
+symlink with `./setup.sh --install-skill`; changes remain tracked in this repo.

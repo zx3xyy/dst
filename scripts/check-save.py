@@ -13,7 +13,7 @@ token = cluster / 'cluster_token.txt'
 if not token.is_file() or not token.read_text().strip():
     errors.append('Missing Klei token in Cluster_1/cluster_token.txt.')
 for shard, port, steam_port in [('Master', 10999, 12346), ('Caves', 11000, 12347)]:
-    ini = configparser.ConfigParser()
+    ini = configparser.ConfigParser(interpolation=None)
     try:
         ini.read(cluster / shard / 'server.ini')
         if ini.getint('NETWORK', 'server_port', fallback=0) != port:

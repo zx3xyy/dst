@@ -10,6 +10,21 @@ Work in `~/dst` (`~/dst` for this user). Read the repository's
 Treat the live configuration and logs as authoritative; recorded versions,
 addresses, and readiness statements can become stale.
 
+For redeployment, use the repository's `./setup.sh` and read `docs/operations.md`.
+It supports original ZIPs and snapshot tar.gz archives, preserves admin lists,
+and prepares the legacy Moving Box mod. Default setup validates without restarting;
+`--start` explicitly builds/starts the deployment. An existing cluster is never
+overwritten by the importer. Real saves and credentials must be transferred
+separately from Git.
+
+For live operations prefer `python3 scripts/serverctl.py status|save|rollback`.
+`rollback N` backs up first and sends ONE command to Master. Verify the target
+snapshot and cave synchronization in logs before any retry. `admins KU_...`
+adds only the explicitly selected accounts, reloads both permission lists, and
+requires player reconnection. Supervisor's local stdin RPC is available; there
+is no need to restart the container to issue a console command. Do not execute a
+rollback just to test the helper.
+
 Keep code and this skill's source in this Git repository. Keep world saves,
 credentials, uploaded archives, downloaded software, caches, and diagnostic logs
 under the project's Git-ignored directories. Never copy a token or room password

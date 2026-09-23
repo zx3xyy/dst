@@ -47,7 +47,10 @@ for attempt in 1 2 3; do
     if python3 - "$cluster/mods/dedicated_server_mods_setup.lua" <<'PY'
 from pathlib import Path
 import re, sys
-ids = re.findall(r'ServerModSetup\("(\d+)"\)', Path(sys.argv[1]).read_text())
+moddir = Path(sys.argv[1]).parent
+ids = set(re.findall(r'ServerModSetup\("(\d+)"\)', Path(sys.argv[1]).read_text()))
+for overrides in moddir.parent.glob('*/modoverrides.lua'):
+    ids.update(re.findall(r'\["workshop-(\d+)"\]\s*=\s*\{', overrides.read_text()))
 missing = [i for i in ids if not (Path('/data/ugc/content/322330') / i / 'modinfo.lua').is_file()
            and not (Path(sys.argv[1]).parent / ('workshop-' + i) / 'modinfo.lua').is_file()]
 if missing:

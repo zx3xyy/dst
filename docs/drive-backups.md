@@ -38,6 +38,14 @@ Edit `dst-drive`, retain scope `drive.file`, then rerun the setup script. For an
 external OAuth app, follow Google's publishing requirements for durable refresh
 tokens; testing-mode credentials can expire. Do not commit OAuth credentials.
 
+For a personal Google account, answer **No** to "Configure this as a Shared Drive
+(Team Drive)?". Selecting Yes with `drive.file` scope produces a 403 when listing
+Team Drives; it does not mean the personal-Drive backup needs broader permission.
+For the browser question, answer Yes only if you can use a browser on the same
+Ubuntu host. Answer No when configuring over SSH from a separate computer, then
+follow the headless authorization prompts. Never paste the returned OAuth blob
+into a chat or tracked file.
+
 ## What is backed up
 
 The complete cluster includes surface/cave saves, player saves, settings and

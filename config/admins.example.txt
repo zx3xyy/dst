@@ -1,0 +1,3 @@
+# Put verified Klei user IDs (KU_...) here, one per line.
+# Copy this to incoming/adminlist.txt and replace comments with your IDs.
+# Never use Steam display names as account identifiers.
