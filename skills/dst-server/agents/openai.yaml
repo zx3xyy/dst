@@ -1,0 +1,4 @@
+interface:
+  display_name: "DST Home Server"
+  short_description: "Manage the persistent DST server in ~/dst"
+  default_prompt: "Use $dst-server to check, start, stop, or back up my DST server."
