@@ -41,6 +41,11 @@ tokens; testing-mode credentials can expire. Do not commit OAuth credentials.
 For a personal Google account, answer **No** to "Configure this as a Shared Drive
 (Team Drive)?". Selecting Yes with `drive.file` scope produces a 403 when listing
 Team Drives; it does not mean the personal-Drive backup needs broader permission.
+OAuth may already have been saved before this error. Rerun
+`bash scripts/setup-drive-backup.sh`: it checks the saved authorization first and
+skips login if access works. Setup also recovers from a failed reconnect when the
+saved configuration passes that check; it still verifies uploads before enabling
+the timer.
 For the browser question, answer Yes only if you can use a browser on the same
 Ubuntu host. Answer No when configuring over SSH from a separate computer, then
 follow the headless authorization prompts. Never paste the returned OAuth blob

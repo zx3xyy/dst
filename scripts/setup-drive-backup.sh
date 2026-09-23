@@ -14,7 +14,15 @@ if ! "$rclone" lsf dst-drive: --max-depth 1 >/dev/null 2>&1; then
     echo 'Sign in to Google Drive. The scope only covers files created by this backup app.'
     echo 'If asked about a Shared Drive, answer no for a personal Drive.'
     echo 'Use a browser on this Ubuntu computer, or follow rclone headless authorization instructions.'
-    "$rclone" config reconnect dst-drive:
+    if ! "$rclone" config reconnect dst-drive:; then
+        # OAuth can succeed before the optional Shared Drive discovery fails.
+        # Continue only if the saved configuration really can access Drive.
+        if ! "$rclone" lsf dst-drive: --max-depth 1 >/dev/null; then
+            echo 'Drive authorization is not usable yet. Rerun setup and answer No for Shared Drive when using personal Drive.' >&2
+            exit 1
+        fi
+        echo 'Saved Drive authorization works; continuing with the existing configuration.'
+    fi
 fi
 echo 'Creating and verifying the first backup before enabling the daily schedule...'
 bash scripts/drive-backup.sh
