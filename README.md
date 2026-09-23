@@ -6,6 +6,17 @@ data files matched the original ZIP after import. Docker access and Klei token
 are present. Initial Steam installation / online verification is in progress.
 The original ZIP is retained. No replacement world has been generated.
 
+## Persistent files
+
+`data/` stores world saves, cluster settings, token, and mods.
+`runtime/game/` stores the downloaded dedicated server, including partial
+Steam downloads. `runtime/steamcmd/` stores SteamCMD and its cache;
+`runtime/steam-home/` stores Steam's root-user metadata and logs.
+All are bind mounts outside the container and excluded from Git.
+They survive a container restart, host reboot, or Compose container recreation.
+Do not delete these directories when updating. Startup checks for updates,
+but reuses installed files and resumable downloads instead of starting over.
+
 ## Import
 
 Put the original archive in `incoming/`. Preserve an untouched copy there.
@@ -24,8 +35,8 @@ Add workshop IDs from modoverrides.lua to mods/dedicated_server_mods_setup.lua.
 Set pause_when_empty = true in cluster.ini's GAMEPLAY section.
 
 Store the Klei token in Cluster_1/cluster_token.txt, not in compose or chat.
-The image changes ownership of data on startup; subsequent host operations
-may require sudo. Keep backups private because they contain the token.
+The game runs as UID/GID 1000, matching the host account. Keep backups private
+because they contain the token. Build and diagnostic logs go in runtime/logs/.
 
 ## Run (from this directory)
 
@@ -34,7 +45,7 @@ directly; existing sessions can use `sg docker -c 'docker compose ps'`.
 Alternatively use sudo:
 
 ```sh
-sudo docker compose pull
+sudo docker compose build --pull
 sudo bash scripts/start.sh
 sudo docker compose logs --tail=100 -f
 sudo docker compose ps
@@ -55,6 +66,11 @@ surface/cave travel and an external player's connection after launch.
 Updates download at container startup. For planned updates, make a backup,
 then restart with `sudo docker compose restart`. No automatic update or backup
 schedule is installed yet; choose a maintenance window after migration.
+Game updates come directly from Valve SteamCMD (app 343050). They do not
+require a new container image. The Dockerfile builds on Ubuntu 24.04;
+to refresh its operating-system packages, run `docker compose build --pull
+--no-cache` followed by `docker compose up -d`. Existing game files remain in
+runtime/ and are reused. The old 2022 community image is no longer used.
 The desktop AC idle action was verified as `nothing` (no automatic suspend).
 Wired Ethernet is preferable for 24/7 use.
 
@@ -67,4 +83,7 @@ Forward these UDP ports to the same ports at the reserved server address:
 Router model and WAN address still need checking for upstream/double NAT.
 Firewall and outside-in connectivity have not been verified.
 
-Image documentation: https://github.com/Jamesits/docker-dst-server
+The repository tracks Dockerfile, docker/, compose.yaml, supervisor.conf,
+scripts/, and this guide. data/, incoming/, backups/, runtime/, and .env
+are Git-ignored. Docker itself still manages image layers, container metadata,
+and its bounded console-log storage in Docker's standard system data directory.

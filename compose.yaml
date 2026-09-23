@@ -1,7 +1,8 @@
 name: dst
 services:
   server:
-    image: jamesits/dst-server:latest-slim
+    build: .
+    image: dst-local:ubuntu24.04
     restart: unless-stopped
     environment:
       DST_SERVER_ARCH: amd64
@@ -12,9 +13,18 @@ services:
       - "12347:12347/udp"
     volumes:
       - ./data:/data
+      - ./runtime/game:/opt/dst_server
+      - ./runtime/steamcmd:/opt/steamcmd
+      - ./runtime/steam-home:/root/Steam
       - ./supervisor.conf:/etc/supervisor/supervisor.conf:ro
     stop_signal: SIGINT
     stop_grace_period: 13m
+    healthcheck:
+      test: ["CMD-SHELL", "supervisorctl -c /etc/supervisor/supervisor.conf status | awk 'BEGIN {ok=1; n=0} {n++; if ($$2 != \"RUNNING\") ok=0} END {exit !(ok && n==2)}'"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30m
+      retries: 3
     logging:
       driver: json-file
       options:
