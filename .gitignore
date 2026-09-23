@@ -4,3 +4,12 @@ backups/
 .env
 __pycache__/
 runtime/
+
+# Credentials must stay private even if copied outside the runtime directories.
+.env.*
+!.env.example
+cluster_token.txt
+adminlist.txt
+rclone.conf
+*.pem
+*.key

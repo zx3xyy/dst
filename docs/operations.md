@@ -22,8 +22,8 @@ On the same LAN, use the current server IP in the **game console** (`~`):
 c_connect("192.0.2.10", 10999, "YOUR_ROOM_PASSWORD")
 ```
 
-This is not a zsh/bash command. On this deployment the room is `YOUR_SERVER_NAME` and
-Wi-Fi was `YOUR_WIFI_NAME`; verify current settings before relying on these names/IPs.
+This is not a zsh/bash command. Replace the example IP with your server's actual
+LAN address and use your configured room password.
 Friends on another network use the online room listing or the public address.
 Test cave travel too. Public-IP connections from inside the LAN depend on NAT
 loopback; ordinary TCP web port checkers do not test the game's UDP ports.
@@ -45,8 +45,8 @@ permissions. Verify after reconnecting:
 python3 scripts/serverctl.py console 'for _,v in ipairs(TheNet:GetClientTable() or {}) do print(v.name, v.admin) end'
 ```
 
-These are full admin privileges. The initial owner requested both PLAYER_ONE and
-PLAYER_TWO; their actual IDs remain in the private cluster file and backups.
+These are full admin privileges. Actual player IDs belong only in the private
+cluster file and backups.
 A new deployment needs that file restored or IDs supplied via `--admins-file`.
 
 ## Rollback

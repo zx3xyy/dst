@@ -5,7 +5,7 @@ description: Operate the user's persistent Don't Starve Together Docker server i
 
 # DST home server
 
-Work in `~/dst` (`~/dst` for this user). Read the repository's
+Work in `~/dst`. Read the repository's
 `README.md`, `compose.yaml`, and relevant scripts before changing the deployment.
 Treat the live configuration and logs as authoritative; recorded versions,
 addresses, and readiness statements can become stale.
@@ -147,8 +147,8 @@ not earlier percentages. Process health alone does not prove the world is playab
 Confirm both shard logs show online startup, caves link to the master, and no
 fatal mod errors. A client authenticated message is not proof of completed loading.
 
-Historically the host used Wi-Fi `YOUR_WIFI_NAME`, IP `192.0.2.10`, and gateway `192.0.2.1`.
-Verify addresses before instructing users. UDP ports are 10999 (surface), 11000
+Read the host network configuration to determine the current LAN address and
+gateway. The IP below is a documentation example; replace it before connecting. UDP ports are 10999 (surface), 11000
 (caves), and 12346/12347 (Steam). Do not expose the internal shard port 10888.
 The user reported router forwarding was configured; do not equate that report
 with a successful external test.
@@ -160,8 +160,8 @@ current IP and their existing password:
 c_connect("192.0.2.10", 10999, "YOUR_EXISTING_PASSWORD")
 ```
 
-Remote friends do not need the same Wi-Fi. Test the online room (historically
-`YOUR_SERVER_NAME`) from another network, then enter the caves. Testing the public IP
+Remote friends do not need the same Wi-Fi. Test the configured online room
+from another network, then enter the caves. Testing the public IP
 from inside the home network can fail due to NAT loopback; TCP web port checkers
 do not establish DST UDP reachability.
 
