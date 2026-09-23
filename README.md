@@ -3,8 +3,18 @@
 Imported `incoming/Cluster_9.zip`: surface + caves, 7 workshop mods, original
 world settings and password preserved, pause when empty enabled. All 100 save
 data files matched the original ZIP after import. Docker access and Klei token
-are present. Initial Steam installation / online verification is in progress.
+are present. DST version 747465 is installed; Klei authentication, surface
+startup, cave startup, and the connection between shards have been verified.
+The world pauses when empty. Player login and outside-in access need testing.
 The original ZIP is retained. No replacement world has been generated.
+
+Moving Box (1079538195) uses a legacy Workshop archive. Steam's normal updater
+timed out for it. Its official Steam GetPublishedFileDetails download was
+extracted into data/DoNotStarveTogether/Cluster_1/mods/workshop-1079538195,
+preserving the original mod configuration. The metadata and ZIP are retained
+under runtime/. Its ServerModSetup line is excluded to avoid repeated stalls;
+the other six mods are updated normally. Keep this local mod folder with saves.
+If re-importing from ZIP, preserve/reinstall this legacy mod before startup.
 
 ## Persistent files
 
@@ -83,8 +93,8 @@ Current Wi-Fi: YOUR_WIFI_NAME. Gateway: 192.0.2.1. Server Wi-Fi address: 192.0.2
 Reserve this address in DHCP (or reserve the Ethernet address if switching).
 Forward these UDP ports to the same ports at the reserved server address:
 10999, 11000, 12346, 12347. Do not expose the internal shard port.
-Router model and WAN address still need checking for upstream/double NAT.
-Firewall and outside-in connectivity have not been verified.
+The user reports port forwarding is configured. Outside-in connectivity and
+in-game cave travel still need a player test from a different network.
 
 The repository tracks Dockerfile, docker/, compose.yaml, supervisor.conf,
 scripts/, and this guide. data/, incoming/, backups/, runtime/, and .env

@@ -41,7 +41,23 @@ fi
 ln -s "$cluster/mods" /opt/dst_server/mods
 chown -R dst:dst /data
 echo 'Updating workshop mods...'
-runuser -u dst -- env HOME=/data dontstarve_dedicated_server_nullrenderer \
-    -persistent_storage_root /data -ugc_directory /data/ugc -cluster Cluster_1 -only_update_server_mods
+for attempt in 1 2 3; do
+    runuser -u dst -- env HOME=/data dontstarve_dedicated_server_nullrenderer \
+        -persistent_storage_root /data -ugc_directory /data/ugc -cluster Cluster_1 -only_update_server_mods
+    if python3 - "$cluster/mods/dedicated_server_mods_setup.lua" <<'PY'
+from pathlib import Path
+import re, sys
+ids = re.findall(r'ServerModSetup\("(\d+)"\)', Path(sys.argv[1]).read_text())
+missing = [i for i in ids if not (Path('/data/ugc/content/322330') / i / 'modinfo.lua').is_file()
+           and not (Path(sys.argv[1]).parent / ('workshop-' + i) / 'modinfo.lua').is_file()]
+if missing:
+    print('Mod downloads still missing:', ', '.join(missing))
+sys.exit(bool(missing))
+PY
+    then
+        break
+    fi
+    [[ "$attempt" != 3 ]] || exit 1
+done
 echo 'Starting imported surface and caves...'
 exec supervisord -c /etc/supervisor/supervisor.conf -n
