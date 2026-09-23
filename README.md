@@ -1,7 +1,10 @@
 # DST home server
 
-Prepared deployment; not running yet. Waiting for the original world, Klei
-cluster token, and Docker access. No new world has been generated.
+Imported `incoming/Cluster_9.zip`: surface + caves, 7 workshop mods, original
+world settings and password preserved, pause when empty enabled. All 100 save
+data files matched the original ZIP after import. Docker access and Klei token
+are present. Initial Steam installation / online verification is in progress.
+The original ZIP is retained. No replacement world has been generated.
 
 ## Import
 
@@ -26,7 +29,9 @@ may require sudo. Keep backups private because they contain the token.
 
 ## Run (from this directory)
 
-Docker currently requires sudo for this account:
+The account is now in the docker group. New login sessions can use Docker
+directly; existing sessions can use `sg docker -c 'docker compose ps'`.
+Alternatively use sudo:
 
 ```sh
 sudo docker compose pull
@@ -50,11 +55,12 @@ surface/cave travel and an external player's connection after launch.
 Updates download at container startup. For planned updates, make a backup,
 then restart with `sudo docker compose restart`. No automatic update or backup
 schedule is installed yet; choose a maintenance window after migration.
-Ensure the host does not suspend. Wired Ethernet is preferable for 24/7 use.
+The desktop AC idle action was verified as `nothing` (no automatic suspend).
+Wired Ethernet is preferable for 24/7 use.
 
 ## Router
 
-Current gateway: 192.0.2.1. Current server Wi-Fi address: 192.0.2.10.
+Current Wi-Fi: YOUR_WIFI_NAME. Gateway: 192.0.2.1. Server Wi-Fi address: 192.0.2.10.
 Reserve this address in DHCP (or reserve the Ethernet address if switching).
 Forward these UDP ports to the same ports at the reserved server address:
 10999, 11000, 12346, 12347. Do not expose the internal shard port.

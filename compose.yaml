@@ -1,7 +1,7 @@
 name: dst
 services:
   server:
-    image: jamesits/dst-server:latest
+    image: jamesits/dst-server:latest-slim
     restart: unless-stopped
     environment:
       DST_SERVER_ARCH: amd64
