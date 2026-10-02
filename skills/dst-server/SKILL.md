@@ -124,8 +124,11 @@ errors. The entrypoint restores root ownership for updater directories.
 The image is built locally from `Dockerfile` on Ubuntu 24.04, not the old
 `jamesits/dst-server` image. `docker/entrypoint.sh` checks game updates through
 SteamCMD app 343050 at startup, then updates workshop mods. Startup checks are
-not continuous automatic updates. No scheduled update/backup job was installed
-as part of the initial deployment; inspect timers before claiming otherwise.
+not continuous automatic updates. The optional `dst-watchdog.timer` checks every
+30 minutes and updates only an empty, outdated running server. Read
+`docs/watchdog.md`; inspect the timer and `runtime/watchdog/needs-review` before
+claiming it is active. Never clear the failure latch without investigating and
+verifying readiness. The watchdog does not revive deliberately stopped servers.
 
 For a requested game update, save/backup first, then restart. For requested OS
 image maintenance, build with `docker compose build --pull --no-cache` and

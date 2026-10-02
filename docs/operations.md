@@ -125,6 +125,12 @@ bash scripts/docker.sh compose up -d
 Changing scripts inside the image requires rebuilding/recreating to take effect.
 Do not recreate the running server just to inspect status or update documentation.
 
+## Update watchdog
+
+See [watchdog setup and recovery](watchdog.md) for update checks every 30 minutes.
+It restarts only for a newer Steam build when both shards are empty, after saves
+and a verified backup. A failed update blocks further attempts pending review.
+
 ## Troubleshooting
 
 - Steam `Missing configuration` or file-permission errors after copying runtime:

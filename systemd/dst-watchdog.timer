@@ -1,0 +1,11 @@
+[Unit]
+Description=Check for DST updates every 30 minutes without scheduled restarts
+
+[Timer]
+OnBootSec=5min
+OnUnitInactiveSec=30min
+AccuracySec=1min
+Unit=dst-watchdog.service
+
+[Install]
+WantedBy=timers.target

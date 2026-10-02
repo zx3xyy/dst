@@ -23,6 +23,7 @@ def main():
     p.add_argument('--build',action='store_true',help='Build current image without restarting the game')
     p.add_argument('--start',action='store_true',help='Build and start/recreate the server (may interrupt players)')
     p.add_argument('--drive',action='store_true',help='Install rclone and run interactive Drive backup setup')
+    p.add_argument('--watchdog',action='store_true',help='Enable update checks every 30 minutes; restart only when outdated and empty')
     p.add_argument('--install-skill',action='store_true',help='Link repo skill into the user skill directory')
     args=p.parse_args()
     if sys.version_info<(3,11): p.error('Python 3.11+ is required.')
@@ -63,6 +64,8 @@ def main():
         if ROOT!=Path.home()/'dst': p.error('Drive timer currently expects this checkout at ~/dst.')
         run(sys.executable,'scripts/install-rclone.py')
         run('bash','scripts/setup-drive-backup.sh')
+    if args.watchdog:
+        run('bash','scripts/setup-watchdog.sh')
     print('Setup checks passed. Use scripts/serverctl.py status for live readiness.')
     if not args.start: print('No server restart was requested.')
 

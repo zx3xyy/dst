@@ -76,6 +76,17 @@ see [backup setup and restore](docs/drive-backups.md).
 The daily job leaves the server running and captures stable, already-saved data,
 not unsaved in-memory progress. No automatic version deletion is configured.
 
+## Automatic update checks
+
+```sh
+./setup.sh --watchdog
+```
+
+Checks every 30 minutes; updates only when Steam has a newer game build and both
+shards are empty. Saves and verifies a backup before restarting, then checks both
+worlds are online. No daily restart is scheduled. Failed updates require review
+before another automatic attempt. See [watchdog operations](docs/watchdog.md).
+
 ## Files and persistence
 
 | Path | Purpose | In Git? |
