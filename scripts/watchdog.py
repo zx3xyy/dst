@@ -113,7 +113,7 @@ def command(container, shard, code, seconds=45):
         match = response(log_since(shard, pos), marker)
         if match: return (match[1] or '').strip()
         time.sleep(1)
-    raise RuntimeError(f'{shard}: no confirmed response (no restart attempted).')
+    raise RuntimeError(f'{shard}: no confirmed console response.')
 
 
 def empty(container):
@@ -128,13 +128,13 @@ def empty(container):
 
 def gate(container, shard, close):
     if close:
-        code = ('TheNet:SetAllowNewPlayersToConnect(false); '
-                'if DSTWatchdogLease then DSTWatchdogLease:Cancel() end; '
-                'DSTWatchdogLease=TheWorld:DoStaticTaskInTime(300,function() '
-                'TheNet:SetAllowNewPlayersToConnect(true); DSTWatchdogLease=nil end); print(MARKER)')
+        code = ('if TheWorld._dstwatchdoglease then TheWorld._dstwatchdoglease:Cancel() end; '
+                'TheWorld._dstwatchdoglease=TheWorld:DoStaticTaskInTime(300,function() '
+                'TheNet:SetAllowNewPlayersToConnect(true); TheWorld._dstwatchdoglease=nil end); '
+                'TheNet:SetAllowNewPlayersToConnect(false); print(MARKER)')
     else:
         code = ('TheNet:SetAllowNewPlayersToConnect(true); '
-                'if DSTWatchdogLease then DSTWatchdogLease:Cancel(); DSTWatchdogLease=nil end; print(MARKER)')
+                'if TheWorld._dstwatchdoglease then TheWorld._dstwatchdoglease:Cancel(); TheWorld._dstwatchdoglease=nil end; print(MARKER)')
     command(container, shard, code)
 
 
@@ -211,7 +211,7 @@ def update(container, target, info):
         if not shutting_down:
             for shard in closed:
                 try: gate(container, shard, False)
-                except Exception: log(f'{shard}: reopen failed; the five-minute game lease will retry.')
+                except Exception: log(f'{shard}: reopen was not confirmed; inspect connections and the game lease.')
 
 
 def run(check_only=False):

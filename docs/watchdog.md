@@ -69,3 +69,8 @@ in `runtime/watchdog/last-update.json`; all logs/state stay Git-ignored.
 The unattended update path is covered by simulated failure/ordering tests. The
 live installation check validates metadata and current status without forcing an
 unnecessary restart or interrupting players.
+
+Connection-gate regression tests execute the generated commands in Lua with strict
+global-variable checks. Install `liblua5.4-0` to run these tests; they report a skip
+when that library is unavailable. Gate state belongs to the world object, and the
+reopen timer is created before connections are closed.
